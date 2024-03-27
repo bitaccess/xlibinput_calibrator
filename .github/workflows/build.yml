@@ -102,8 +102,10 @@ jobs:
       - name: Setup some variables
         run: |
           echo "APP_VERSION=$(< ${{ github.workspace }}/Release_notes.txt awk -F: '/^[0-9]/{print $1}'|tail -1)" >> $GITHUB_ENV
-          echo "APP_NAME=${GITHUB_REPOSITORY#*\/}"  >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$(echo ${GITHUB_REPOSITORY#*\/}|tr '_' '-')"  >> $GITHUB_ENV
+          APP_NAME=${GITHUB_REPOSITORY#*\/}
+          echo "APP_NAME=$APP_NAME"  >> $GITHUB_ENV
+          echo "PACKAGE_NAME=${APP_NAME/_/-}"  >> $GITHUB_ENV
+          #echo "PACKAGE_NAME=$(echo ${GITHUB_REPOSITORY#*\/}|tr '_' '-')"  >> $GITHUB_ENV
           echo cat $GITHUB_ENV
           cat $GITHUB_ENV
 
