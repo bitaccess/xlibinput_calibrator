@@ -20,48 +20,48 @@ jobs:
     steps:
       - name: Print environment variables
         run: |
-          echo "CI=$CI"
-          echo "GITHUB_ACTION=$GITHUB_ACTION"
-          echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
-          echo "GITHUB_ACTION_REPOSITORY=$GITHUB_ACTION_REPOSITORY"
-          echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
-          echo "GITHUB_ACTOR=$GITHUB_ACTOR"
-          echo "GITHUB_API_URL=$GITHUB_API_URL"
-          echo "GITHUB_BASE_REF=$GITHUB_BASE_REF"
-          echo "GITHUB_ENV=$GITHUB_ENV"
-          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
-          echo "GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH"
-          echo "GITHUB_GRAPHQL_URL=$GITHUB_GRAPHQL_URL"
-          echo "GITHUB_HEAD_REF=$GITHUB_HEAD_REF"
-          echo "GITHUB_JOB=$GITHUB_JOB"
-          echo "GITHUB_PATH=$GITHUB_PATH"
-          echo "GITHUB_REF=$GITHUB_REF"
-          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
-          echo "GITHUB_REF_PROTECTED=$GITHUB_REF_PROTECTED"
-          echo "GITHUB_REF_TYPE=$GITHUB_REF_TYPE"
-          echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
-          echo "GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER"
-          echo "GITHUB_RETENTION_DAYS=$GITHUB_RETENTION_DAYS"
-          echo "GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT"
-          echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
-          echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER"
-          echo "GITHUB_SERVER_URL=$GITHUB_SERVER_URL"
-          echo "GITHUB_SHA=$GITHUB_SHA"
-          echo "GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY"
-          echo "GITHUB_WORKFLOW=$GITHUB_WORKFLOW"
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          echo "RUNNER_ARCH=$RUNNER_ARCH"
-          echo "RUNNER_NAME=$RUNNER_NAME"
-          echo "RUNNER_OS=$RUNNER_OS"
-          echo "RUNNER_TEMP=$RUNNER_TEMP"
-          echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE "
-          echo
+          # echo "CI=$CI"
+          # echo "GITHUB_ACTION=$GITHUB_ACTION"
+          # echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
+          # echo "GITHUB_ACTION_REPOSITORY=$GITHUB_ACTION_REPOSITORY"
+          # echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
+          # echo "GITHUB_ACTOR=$GITHUB_ACTOR"
+          # echo "GITHUB_API_URL=$GITHUB_API_URL"
+          # echo "GITHUB_BASE_REF=$GITHUB_BASE_REF"
+          # echo "GITHUB_ENV=$GITHUB_ENV"
+          # echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+          # echo "GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH"
+          # echo "GITHUB_GRAPHQL_URL=$GITHUB_GRAPHQL_URL"
+          # echo "GITHUB_HEAD_REF=$GITHUB_HEAD_REF"
+          # echo "GITHUB_JOB=$GITHUB_JOB"
+          # echo "GITHUB_PATH=$GITHUB_PATH"
+          # echo "GITHUB_REF=$GITHUB_REF"
+          # echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          # echo "GITHUB_REF_PROTECTED=$GITHUB_REF_PROTECTED"
+          # echo "GITHUB_REF_TYPE=$GITHUB_REF_TYPE"
+          # echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
+          # echo "GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER"
+          # echo "GITHUB_RETENTION_DAYS=$GITHUB_RETENTION_DAYS"
+          # echo "GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT"
+          # echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
+          # echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER"
+          # echo "GITHUB_SERVER_URL=$GITHUB_SERVER_URL"
+          # echo "GITHUB_SHA=$GITHUB_SHA"
+          # echo "GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY"
+          # echo "GITHUB_WORKFLOW=$GITHUB_WORKFLOW"
+          # echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          # echo "RUNNER_ARCH=$RUNNER_ARCH"
+          # echo "RUNNER_NAME=$RUNNER_NAME"
+          # echo "RUNNER_OS=$RUNNER_OS"
+          # echo "RUNNER_TEMP=$RUNNER_TEMP"
+          # echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE "
+          # echo
           echo '================================================================ env|grep -E "GITHUB|RUNNER|CI"'
-          env|grep -E "GITHUB|RUNNER|CI"|sort || true
-          echo "================================================================ env minus GITHUB|RUNNER|CI"
-          env|grep -vE "GITHUB|RUNNER|CI"
+          env|grep -E 'GITHUB|RUNNER|CI'|sort || true
+          echo '================================================================ env minus GITHUB|RUNNER|CI'
+          env|grep -vE 'GITHUB|RUNNER|CI'
           echo
-          echo "================================================================"
+          echo '================================================================'
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -220,9 +220,11 @@ jobs:
           echo "cat .debpkg/DEBIAN/control"
           cat .debpkg/DEBIAN/control
           echo "****************"
-          dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
+          dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo rc=$?
-          ls -l ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
+          ls -l ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          echo pwd
+          pwd
 
       # - name: build with jiro4989
       #   id: build
@@ -236,9 +238,11 @@ jobs:
       #     arch: ${{ env.ARCH }}
       #     desc: ${{ env.DESC }}
       #     #desclong: ${{ env.DESCLONG }}
-
+      
       - name: verify
         run: |
+          echo pwd
+          pwd
           echo
           echo "deb file: ${{ steps.build.outputs.file_name }}"
           echo filename: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
