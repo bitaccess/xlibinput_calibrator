@@ -56,6 +56,11 @@ jobs:
           echo "RUNNER_TEMP=$RUNNER_TEMP"
           echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE"
           echo
+          echo "env|grep -E \"GITHUB|RUNNER|CI\""
+          env|grep -E "GITHUB|RUNNER|CI"
+          echo "env"
+          env
+          echo
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -163,7 +168,6 @@ jobs:
 
       - name: build
         id: build
-        uses: jiro4989/build-deb-action@v2
         run: |
           mkdir DEBIAN
           echo "Package: ${{ env.PACKAGE_NAME }}" >>DEBIAN/control
