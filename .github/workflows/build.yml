@@ -32,7 +32,7 @@ jobs:
           echo "================================================================ done"
 
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup some variables
         run: |
@@ -72,7 +72,7 @@ jobs:
             major: 20
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup some variables
         run: |

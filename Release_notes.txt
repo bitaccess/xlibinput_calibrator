@@ -1,4 +1,4 @@
 0.13.2:
-        Cloned https://github.com/kreijack/xlibinput_calibrator
+        Cloned https://github.com/kreijack/xlibinput_calibrator.
         Changed around to better fit our procedures.
         Added github workflow to build and upload .deb
