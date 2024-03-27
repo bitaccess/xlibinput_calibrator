@@ -117,7 +117,7 @@ jobs:
         run: echo "branch=$(echo ${GITHUB_REF_NAME//\//_})" >> $GITHUB_OUTPUT
         id: extract_branch
 
-      - name: Download dependencies
+      - name: Install dependencies
         run: |
           sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
 
@@ -127,10 +127,6 @@ jobs:
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
-          echo pwd
-          pwd
-          echo ls -l
-          ls -l
           cd src && make && cd .. && make man
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
           #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
@@ -140,6 +136,8 @@ jobs:
           pwd
           echo ls -l
           ls -l
+          echo ls -l src
+          ls -ld */*
           rsync -rlptvD --exclude=CODEOWNERS \
                         --exclude=pull_request_template.md \
                         --exclude=bin_exclude/ \
@@ -148,6 +146,9 @@ jobs:
                         --exclude=uinput-touch-simulator \
                         * \
                         .debpkg/opt/$PACKAGE_NAME/
+
+          rsync -rlptvD src/xlibinput_calibrator \
+                        .debpkg/opt/$PACKAGE_NAME/bin/
 
           echo
           sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
