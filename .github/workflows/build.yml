@@ -132,24 +132,32 @@ jobs:
           #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
 
           echo rsync to .debpkg/opt/$PACKAGE_NAME/
-          echo pwd
-          pwd
-          echo ls -l
-          ls -l
-          echo ls -l src
-          ls -ld */*
-          rsync -rlptvD --exclude=CODEOWNERS \
-                        --exclude=pull_request_template.md \
-                        --exclude=bin_exclude/ \
-                        --exclude=input-touch-simulator \
-                        --exclude=src \
-                        --exclude=uinput-touch-simulator \
-                        * \
+          # echo pwd
+          # pwd
+          # echo ls -l
+          # ls -l
+          # echo ls -l src
+          # ls -ld */*
+          # rsync -rlptvD --exclude=CODEOWNERS \
+          #               --exclude=pull_request_template.md \
+          #               --exclude=bin_exclude/ \
+          #               --exclude=input-touch-simulator \
+          #               --exclude=src \
+          #               --exclude=uinput-touch-simulator \
+          #               * \
+          #               .debpkg/opt/$PACKAGE_NAME/
+
+          # rsync -rlptvD src/xlibinput_calibrator \
+          #               .debpkg/opt/$PACKAGE_NAME/bin/
+          rsync -rlptvD Release_notes.txt \
+                        LICENSE.txt \
+                        src/xlibinput_calibrator \
+                        xlibinput_calibrator.8 \
                         .debpkg/opt/$PACKAGE_NAME/
-
-          rsync -rlptvD src/xlibinput_calibrator \
-                        .debpkg/opt/$PACKAGE_NAME/bin/
-
+          # mkdir /usr/local/share/man/man8
+          # cp -av xlibinput_calibrator.8 /usr/local/share/man/man8/
+          # gzip /usr/local/share/man/man8/xlibinput_calibrator.8
+          #
           echo
           sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
 
