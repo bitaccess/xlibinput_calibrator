@@ -248,7 +248,7 @@ jobs:
           echo
           echo "deb file step output: ${{ steps.build.outputs.file_name }}"
           echo "deb file env value  : $PACKAGE_FILE"
-          echo "deb file {{}} value : $${{ env.PACKAGE_FILE }}"
+          echo "deb file {{}} value : ${{ env.PACKAGE_FILE }}"
           echo filename: $PACKAGE_FILE
           ls -l $PACKAGE_FILE
           echo
@@ -263,15 +263,5 @@ jobs:
           key: ${{ secrets.DEB_REPO_KEY }}
           #source: ${{ steps.build.outputs.file_name }}
           source: ${{env.PACKAGE_FILE}}
-          target: /var/www/html/bitaccess/dists/upload/${{ steps.extract_branch.outputs.branch }}
-
-      # scp the deb package to the package repo
-      - name: upload file
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DEB_REPO_HOST }}
-          username: ${{ secrets.DEB_REPO_USERNAME }}
-          key: ${{ secrets.DEB_REPO_KEY }}
-          source: ${{ steps.build.outputs.file_name }}
           #target: /var/www/html/bitaccess-staged/dists/upload/${{ steps.extract_branch.outputs.branch }}
           target: /var/www/html/bitaccess-nonstaged/dists/upload/${{ steps.extract_branch.outputs.branch }}
