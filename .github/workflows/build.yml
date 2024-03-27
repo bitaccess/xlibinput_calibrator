@@ -2,10 +2,10 @@
 # the DEBIAN/control file indicating a version change
 on:
   push:
-    #branches:
-    #  - master
-    paths:
-      - 'Release_notes.txt'
+    branches:
+      - master
+    #paths:
+    #  - 'Release_notes.txt'
 env:
   ARCH: 'all'
   MAINTAINER: 'bofh@bitaccess.co'
@@ -117,24 +117,35 @@ jobs:
         run: echo "branch=$(echo ${GITHUB_REF_NAME//\//_})" >> $GITHUB_OUTPUT
         id: extract_branch
 
+      - name: Download dependencies
+        run: |
+          sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
+
       - name: Prep the code
         run: |
           mkdir -p .debpkg/opt/$PACKAGE_NAME
-          sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
+          echo pwd
+          pwd
+          echo ls -l
+          ls -l
           cd src && make && cd .. && make man
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
           #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
 
           echo rsync to .debpkg/opt/$PACKAGE_NAME/
+          echo pwd
+          pwd
+          echo ls -l
+          ls -l
           rsync -rlptvD --exclude=CODEOWNERS \
                         --exclude=pull_request_template.md \
                         --exclude=bin_exclude/ \
                         --exclude=input-touch-simulator \
                         --exclude=src \
-                        --exclude=uinput-touch-simulator
+                        --exclude=uinput-touch-simulator \
                         * \
                         .debpkg/opt/$PACKAGE_NAME/
 
