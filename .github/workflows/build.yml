@@ -2,10 +2,10 @@
 # the DEBIAN/control file indicating a version change
 on:
   push:
-    branches:
-      - master
-    #paths:
-    #  - 'Release_notes.txt'
+    #branches:
+    #  - master
+    paths:
+      - 'Release_notes.txt'
 env:
   ARCH: 'all'
   MAINTAINER: 'bofh@bitaccess.co'
@@ -148,7 +148,7 @@ jobs:
           #               .debpkg/opt/$PACKAGE_NAME/
 
           # rsync -rlptvD src/xlibinput_calibrator \
-          #               .debpkg/opt/$PACKAGE_NAME/bin/
+          #               .debpkg/opt/$PACKAGE_NAME/
           rsync -rlptvD Release_notes.txt \
                         LICENSE.txt \
                         src/xlibinput_calibrator \
