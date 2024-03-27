@@ -119,7 +119,7 @@ jobs:
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
-          cd src && make && make man
+          cd src && make && cd .. && make man
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
           #rm -rf .debpkg/opt/$APP_NAME/xlibinput-calibrator
 
