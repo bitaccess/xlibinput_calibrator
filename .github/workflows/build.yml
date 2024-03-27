@@ -65,7 +65,7 @@ jobs:
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-          echo "================================================================ done
+          echo "================================================================ done"
 
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -220,9 +220,9 @@ jobs:
           echo "cat .debpkg/DEBIAN/control"
           cat .debpkg/DEBIAN/control
           echo "****************"
-          dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo rc=$?
-          ls -l ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo pwd
           pwd
 
