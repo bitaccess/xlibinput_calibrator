@@ -131,9 +131,49 @@ jobs:
         run: |
           sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
 
-      - name: Prep the code
+      # - name: Prep the code for /opt/$PACKAGE_NAME
+      #   run: |
+      #     mkdir -p .debpkg/opt/$PACKAGE_NAME
+
+      #     # Build touchscreen calibration
+      #     echo compiling xlibinput-calibrator for ${{ matrix.os }}
+      #     cd src && make && cd .. && make man
+      #     save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
+      #     #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
+
+      #     echo rsync to .debpkg/opt/$PACKAGE_NAME/
+      #     # echo pwd
+      #     # pwd
+      #     # echo ls -l
+      #     # ls -l
+      #     # echo ls -l src
+      #     # ls -ld */*
+      #     # rsync -rlptvD --exclude=CODEOWNERS \
+      #     #               --exclude=pull_request_template.md \
+      #     #               --exclude=bin_exclude/ \
+      #     #               --exclude=input-touch-simulator \
+      #     #               --exclude=src \
+      #     #               --exclude=uinput-touch-simulator \
+      #     #               * \
+      #     #               .debpkg/opt/$PACKAGE_NAME/
+
+      #     # rsync -rlptvD src/xlibinput_calibrator \
+      #     #               .debpkg/opt/$PACKAGE_NAME/
+      #     rsync -rlptvD Release_notes.txt \
+      #                   LICENSE.txt \
+      #                   src/xlibinput_calibrator \
+      #                   xlibinput_calibrator.8 \
+      #                   .debpkg/opt/$PACKAGE_NAME/
+      #     # mkdir /usr/local/share/man/man8
+      #     # cp -av xlibinput_calibrator.8 /usr/local/share/man/man8/
+      #     # gzip /usr/local/share/man/man8/xlibinput_calibrator.8
+      #     #
+      #     echo
+      #     sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
+
+      - name: Prep the code for /usr/local
         run: |
-          mkdir -p .debpkg/opt/$PACKAGE_NAME
+          mkdir -p .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/share/doc/xlibinput-calibrator
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
@@ -141,37 +181,19 @@ jobs:
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
           #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
 
-          echo rsync to .debpkg/opt/$PACKAGE_NAME/
-          # echo pwd
-          # pwd
-          # echo ls -l
-          # ls -l
-          # echo ls -l src
-          # ls -ld */*
-          # rsync -rlptvD --exclude=CODEOWNERS \
-          #               --exclude=pull_request_template.md \
-          #               --exclude=bin_exclude/ \
-          #               --exclude=input-touch-simulator \
-          #               --exclude=src \
-          #               --exclude=uinput-touch-simulator \
-          #               * \
-          #               .debpkg/opt/$PACKAGE_NAME/
-
-          # rsync -rlptvD src/xlibinput_calibrator \
-          #               .debpkg/opt/$PACKAGE_NAME/
+          echo rsync to .debpkg
           rsync -rlptvD Release_notes.txt \
                         LICENSE.txt \
-                        src/xlibinput_calibrator \
-                        xlibinput_calibrator.8 \
-                        .debpkg/opt/$PACKAGE_NAME/
-          # mkdir /usr/local/share/man/man8
-          # cp -av xlibinput_calibrator.8 /usr/local/share/man/man8/
-          # gzip /usr/local/share/man/man8/xlibinput_calibrator.8
-          #
-          echo
-          sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
+                        .debpkg/usr/share/doc/xlibinput-calibrator/
+          rsync -rlptvD src/xlibinput_calibrator \
+                        .debpkg/usr/local/bin/
+          rsync -rlptvD xlibinput_calibrator.8 \
+                        .debpkg/usr/local/man/man8/
 
-      - name: build
+          echo
+          sudo chown -R root:root .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/share/doc/xlibinput-calibrator
+
+      - name: build with dpkg-deb
         id: build
         run: |
           mkdir -p .debpkg/DEBIAN
@@ -199,7 +221,7 @@ jobs:
           echo "****************"
           dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
 
-      # - name: build
+      # - name: build with jiro4989
       #   id: build
       #   uses: jiro4989/build-deb-action@v2
       #   with:
@@ -219,7 +241,7 @@ jobs:
           echo filename: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo
-          ls -l 
+          dpkg -c ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
 
       # scp the deb package to the package repo
       - name: upload file
