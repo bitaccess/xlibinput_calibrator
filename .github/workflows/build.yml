@@ -54,13 +54,14 @@ jobs:
           echo "RUNNER_NAME=$RUNNER_NAME"
           echo "RUNNER_OS=$RUNNER_OS"
           echo "RUNNER_TEMP=$RUNNER_TEMP"
-          echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE"
+          echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE "
           echo
-          echo "================================================================ env|grep -E \"GITHUB|RUNNER|CI\""
+          echo '================================================================ env|grep -E "GITHUB|RUNNER|CI"'
           env|grep -E "GITHUB|RUNNER|CI"|sort || true
-          echo "================================================================ env - above"
+          echo "================================================================ env minus GITHUB|RUNNER|CI"
           env|grep -vE "GITHUB|RUNNER|CI"
           echo
+          echo "================================================================"
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -220,6 +221,8 @@ jobs:
           cat .debpkg/DEBIAN/control
           echo "****************"
           dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
+          echo rc=$?
+          ls -l ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
 
       # - name: build with jiro4989
       #   id: build
