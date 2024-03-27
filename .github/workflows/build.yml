@@ -121,14 +121,22 @@ jobs:
         run: |
           mkdir -p .debpkg/opt/$PACKAGE_NAME
           sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
-          echo rsync to .debpkg/opt/$PACKAGE_NAME/
-          rsync -rlptvD --exclude=CODEOWNERS --exclude=pull_request_template.md --exclude=bin_exclude/ --exclude=input-touch-simulator * .debpkg/opt/$PACKAGE_NAME/
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
           cd src && make && cd .. && make man
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
           #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
+
+          echo rsync to .debpkg/opt/$PACKAGE_NAME/
+          rsync -rlptvD --exclude=CODEOWNERS \
+                        --exclude=pull_request_template.md \
+                        --exclude=bin_exclude/ \
+                        --exclude=input-touch-simulator \
+                        --exclude=src \
+                        --exclude=uinput-touch-simulator
+                        * \
+                        .debpkg/opt/$PACKAGE_NAME/
 
           echo
           sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
