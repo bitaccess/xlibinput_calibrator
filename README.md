@@ -66,7 +66,7 @@ sets the calibration matrix to the identity (i.e. all 1 in the diagonal). With t
 
 Go under **src/**, and run **make**:
 
-	$ git clone https://github.com/kreijack/xlibinput_calibrator.git
+	$ git clone https://github.com/bitaccess/xlibinput_calibrator
 	Cloning into 'xlibinput_calibrator'...
 	[...]
 	$ cd xlibinput_calibrator/src/
