@@ -67,11 +67,13 @@ jobs:
         run: |
           echo "APP_VERSION=$(< ${{ github.workspace }}/Release_notes.txt awk -F: '/^[0-9]/{print $1}'|tail -1)" >> $GITHUB_ENV
           echo "APP_NAME=${GITHUB_REPOSITORY#*\/}"  >> $GITHUB_ENV
+          echo "PACKAGE_NAME=${APP_NAME/_/-}"  >> $GITHUB_ENV
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
           echo "APP_NAME=${{ env.APP_NAME }}"
+          echo "PACKAGE_NAME=${{ env.PACKAGE_NAME }}"
           echo "APP_VERSION=${{ env.APP_VERSION }}"
           echo "APP_ARCH=${{ env.APP_ARCH }}"
           echo "APP_MAINTAINER=${{ env.APP_MAINTAINER }}"
@@ -101,6 +103,7 @@ jobs:
         run: |
           echo "APP_VERSION=$(< ${{ github.workspace }}/Release_notes.txt awk -F: '/^[0-9]/{print $1}'|tail -1)" >> $GITHUB_ENV
           echo "APP_NAME=${GITHUB_REPOSITORY#*\/}"  >> $GITHUB_ENV
+          echo "PACKAGE_NAME=${APP_NAME/_/-}"  >> $GITHUB_ENV
 
       - name: Extract branch name
         shell: bash
@@ -112,25 +115,25 @@ jobs:
 
       - name: Prep the code
         run: |
-          mkdir -p .debpkg/opt/$APP_NAME
+          mkdir -p .debpkg/opt/$PACKAGE_NAME
           sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
           echo rsync...
-          rsync -rlptvD --exclude=CODEOWNERS --exclude=pull_request_template.md --exclude=bin_exclude/ --exclude=input-touch-simulator * .debpkg/opt/$APP_NAME/
+          rsync -rlptvD --exclude=CODEOWNERS --exclude=pull_request_template.md --exclude=bin_exclude/ --exclude=input-touch-simulator * .debpkg/opt/$PACKAGE_NAME/
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
           cd src && make && cd .. && make man
           save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
-          #rm -rf .debpkg/opt/$APP_NAME/xlibinput-calibrator
+          #rm -rf .debpkg/opt/$PACKAGE_NAME/xlibinput-calibrator
 
           echo
-          sudo chown -R root:root .debpkg/opt/$APP_NAME/
+          sudo chown -R root:root .debpkg/opt/$PACKAGE_NAME/
 
       - name: build
         id: build
         uses: jiro4989/build-deb-action@v2
         with:
-          package: ${{ env.APP_NAME }}
+          package: ${{ env.PACKAGE_NAME }}
           package_root: .debpkg
           maintainer: ${{ env.MAINTAINER }}
           version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}
@@ -141,8 +144,8 @@ jobs:
         run: |
           echo
           echo "deb file: ${{ steps.build.outputs.file_name }}"
-          echo filename: ${{ env.APP_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
-          ls -l ${{ env.APP_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          echo filename: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo
           ls -l 
 
