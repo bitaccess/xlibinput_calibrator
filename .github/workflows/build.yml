@@ -2,8 +2,8 @@
 # the DEBIAN/control file indicating a version change
 on:
   push:
-    branches:
-      - master
+    #branches:
+    #  - master
     paths:
       - 'Release_notes.txt'
 env:
