@@ -174,7 +174,7 @@ jobs:
 
       - name: Prep the code for /usr/local
         run: |
-          mkdir -p .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/share/doc/xlibinput-calibrator
+          mkdir -p .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/local/share/doc/xlibinput-calibrator
 
           # Build touchscreen calibration
           echo compiling xlibinput-calibrator for ${{ matrix.os }}
@@ -185,14 +185,14 @@ jobs:
           echo rsync to .debpkg
           rsync -rlptvD Release_notes.txt \
                         LICENSE.txt \
-                        .debpkg/usr/share/doc/xlibinput-calibrator/
+                        .debpkg/usr/local/share/doc/xlibinput-calibrator/
           rsync -rlptvD src/xlibinput_calibrator \
                         .debpkg/usr/local/bin/
           rsync -rlptvD xlibinput_calibrator.8 \
                         .debpkg/usr/local/man/man8/
 
           echo
-          sudo chown -R root:root .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/share/doc/xlibinput-calibrator
+          sudo chown -R root:root .debpkg/usr/local/bin .debpkg/usr/local/man/man8 .debpkg/usr/local/share/doc/xlibinput-calibrator
 
       - name: build with dpkg-deb
         id: build
@@ -246,12 +246,13 @@ jobs:
           echo pwd
           pwd
           echo
-          echo "deb1 file: ${{ steps.build.outputs.file_name }}"
-          echo "deb2 file: $PACKAGE_FILE"
-          echo filename: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
-          ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          echo "deb file step output: ${{ steps.build.outputs.file_name }}"
+          echo "deb file env value  : $PACKAGE_FILE"
+          echo "deb file {{}} value : $${{ env.PACKAGE_FILE }}"
+          echo filename: $PACKAGE_FILE
+          ls -l $PACKAGE_FILE
           echo
-          dpkg -c ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          dpkg -c $PACKAGE_FILE
 
       # scp the deb package to the package repo
       - name: upload file
@@ -261,7 +262,7 @@ jobs:
           username: ${{ secrets.DEB_REPO_USERNAME }}
           key: ${{ secrets.DEB_REPO_KEY }}
           #source: ${{ steps.build.outputs.file_name }}
-          source: $PACKAGE_FILE
+          source: ${{env.PACKAGE_FILE}}
           target: /var/www/html/bitaccess/dists/upload/${{ steps.extract_branch.outputs.branch }}
 
       # scp the deb package to the package repo
