@@ -1,0 +1,167 @@
+# Runs when there is a push to master and there has been a change to
+# the DEBIAN/control file indicating a version change
+on:
+  push:
+#    branches:
+#      - master
+    paths:
+      - 'Release_notes.txt'
+env:
+  ARCH: 'all'
+  MAINTAINER: 'bofh@bitaccess.co'
+  DESC: 'Calibrate a touch screen when X11 relies on libinput'
+  DESCLONG: "The aim of this project is to allow to calibrate a touch screen when X11 relies on libinput. For older X11, which doesn't relies on libinput, you have to use the old xinput_calibrator."  #not yet used by jiro4989/build-deb-action
+
+jobs:
+  # This is mostly to better understand what's available in the github action
+  show-info:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print environment variables
+        run: |
+          echo "CI=$CI"
+          echo "GITHUB_ACTION=$GITHUB_ACTION"
+          echo "GITHUB_ACTION_PATH=$GITHUB_ACTION_PATH"
+          echo "GITHUB_ACTION_REPOSITORY=$GITHUB_ACTION_REPOSITORY"
+          echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
+          echo "GITHUB_ACTOR=$GITHUB_ACTOR"
+          echo "GITHUB_API_URL=$GITHUB_API_URL"
+          echo "GITHUB_BASE_REF=$GITHUB_BASE_REF"
+          echo "GITHUB_ENV=$GITHUB_ENV"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+          echo "GITHUB_EVENT_PATH=$GITHUB_EVENT_PATH"
+          echo "GITHUB_GRAPHQL_URL=$GITHUB_GRAPHQL_URL"
+          echo "GITHUB_HEAD_REF=$GITHUB_HEAD_REF"
+          echo "GITHUB_JOB=$GITHUB_JOB"
+          echo "GITHUB_PATH=$GITHUB_PATH"
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
+          echo "GITHUB_REF_PROTECTED=$GITHUB_REF_PROTECTED"
+          echo "GITHUB_REF_TYPE=$GITHUB_REF_TYPE"
+          echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY"
+          echo "GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER"
+          echo "GITHUB_RETENTION_DAYS=$GITHUB_RETENTION_DAYS"
+          echo "GITHUB_RUN_ATTEMPT=$GITHUB_RUN_ATTEMPT"
+          echo "GITHUB_RUN_ID=$GITHUB_RUN_ID"
+          echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER"
+          echo "GITHUB_SERVER_URL=$GITHUB_SERVER_URL"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_STEP_SUMMARY=$GITHUB_STEP_SUMMARY"
+          echo "GITHUB_WORKFLOW=$GITHUB_WORKFLOW"
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          echo "RUNNER_ARCH=$RUNNER_ARCH"
+          echo "RUNNER_NAME=$RUNNER_NAME"
+          echo "RUNNER_OS=$RUNNER_OS"
+          echo "RUNNER_TEMP=$RUNNER_TEMP"
+          echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE"
+          echo
+          echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+          echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup some variables
+        run: |
+          echo "APP_VERSION=$(< ${{ github.workspace }}/Release_notes.txt awk -F: '/^[0-9]/{print $1}'|tail -1)" >> $GITHUB_ENV
+          echo "APP_NAME=${GITHUB_REPOSITORY#*\/}"  >> $GITHUB_ENV
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          echo "APP_NAME=${{ env.APP_NAME }}"
+          echo "APP_VERSION=${{ env.APP_VERSION }}"
+          echo "APP_ARCH=${{ env.APP_ARCH }}"
+          echo "APP_MAINTAINER=${{ env.APP_MAINTAINER }}"
+          echo "APP_DESC=${{ env.APP_DESC }}"
+          echo "****************************************************************"
+          echo "pwd"
+          pwd
+          echo "****************************************************************"
+          echo "ls -l ${{ github.workspace }}"
+          ls -l ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+        
+  build-deb:
+    if: github.ref_type == 'branch'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            codename: focal
+            major: 20
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup some variables
+        run: |
+          echo "APP_VERSION=$(< ${{ github.workspace }}/Release_notes.txt awk -F: '/^[0-9]/{print $1}'|tail -1)" >> $GITHUB_ENV
+          echo "APP_NAME=${GITHUB_REPOSITORY#*\/}"  >> $GITHUB_ENV
+
+      - name: Extract branch name
+        shell: bash
+        #run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        #run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF_NAME//\//_})"
+        # set-output fully disabled 2023-05-31 - https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+        run: echo "branch=$(echo ${GITHUB_REF_NAME//\//_})" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      - name: Prep the code
+        run: |
+          mkdir -p .debpkg/opt/$APP_NAME
+          echo rsync...
+          rsync -rlptvD --exclude=CODEOWNERS --exclude=pull_request_template.md --exclude=bin_exclude/ * .debpkg/opt/$APP_NAME/
+
+          # Build touchscreen calibration
+          echo compiling xlibinput-calibrator for ${{ matrix.os }}
+          cd src && make && make man
+          save_rc=$?;[ $save_rc -ne 0 ] && echo "FAILURE on line $BASH_SOURCE:$LINENO - make"
+          #rm -rf .debpkg/opt/$APP_NAME/xlibinput-calibrator
+
+          echo
+          sudo chown -R root:root .debpkg/opt/$APP_NAME/
+
+      - name: build
+        id: build
+        uses: jiro4989/build-deb-action@v2
+        with:
+          package: ${{ env.APP_NAME }}
+          package_root: .debpkg
+          maintainer: ${{ env.MAINTAINER }}
+          version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}
+          arch: ${{ env.ARCH }}
+          desc: ${{ env.DESC }}
+
+      - name: verify
+        run: |
+          echo
+          echo "deb file: ${{ steps.build.outputs.file_name }}"
+          echo filename: ${{ env.APP_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          ls -l ${{ env.APP_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
+          echo
+          ls -l 
+
+      # scp the deb package to the package repo
+      - name: upload file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEB_REPO_HOST }}
+          username: ${{ secrets.DEB_REPO_USERNAME }}
+          key: ${{ secrets.DEB_REPO_KEY }}
+          source: ${{ steps.build.outputs.file_name }}
+          target: /var/www/html/bitaccess/dists/upload/${{ steps.extract_branch.outputs.branch }}
+
+      # scp the deb package to the package repo
+      - name: upload file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEB_REPO_HOST }}
+          username: ${{ secrets.DEB_REPO_USERNAME }}
+          key: ${{ secrets.DEB_REPO_KEY }}
+          source: ${{ steps.build.outputs.file_name }}
+          #target: /var/www/html/bitaccess-staged/dists/upload/${{ steps.extract_branch.outputs.branch }}
+          target: /var/www/html/bitaccess-nonstaged/dists/upload/${{ steps.extract_branch.outputs.branch }}
