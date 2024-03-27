@@ -56,14 +56,15 @@ jobs:
           echo "RUNNER_TEMP=$RUNNER_TEMP"
           echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE"
           echo
-          echo "env|grep -E \"GITHUB|RUNNER|CI\""
-          env|grep -E "GITHUB|RUNNER|CI"
-          echo "env"
-          env
+          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> env|grep -E \"GITHUB|RUNNER|CI\""
+          env|grep -E "GITHUB|RUNNER|CI"|sort
+          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> env - above
+          env|grep -vE "GITHUB|RUNNER|CI"
           echo
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> done
 
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -88,7 +89,11 @@ jobs:
           pwd
           echo "****************************************************************"
           echo "ls -l ${{ github.workspace }}"
-          ls -l ${{ github.workspace }}
+          ls -l ${{ github.workspace }} 
+          echo "****************************************************************"
+          echo "ls -ld ${{ github.workspace }}/*"
+          ls -ld ${{ github.workspace }}/*
+          echo "****************************************************************"
       - run: echo "🍏 This job's status is ${{ job.status }}."
         
   build-deb:
@@ -169,25 +174,29 @@ jobs:
       - name: build
         id: build
         run: |
-          mkdir DEBIAN
-          echo "Package: ${{ env.PACKAGE_NAME }}" >>DEBIAN/control
-          echo "Version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}" >>DEBIAN/control
-          #echo "Source: ${{ env.PACKAGE_NAME }}" >>DEBIAN/control
-          echo "Section: utils" >>DEBIAN/control
-          echo "Priority: optional" >>DEBIAN/control
-          echo "Maintainer: ${{ env.MAINTAINER }}" >>DEBIAN/control
-          # echo "Build-Depends: libxrandr-dev," >>DEBIAN/control
+          mkdir -p .debpkg/DEBIAN
+          echo "Package: ${{ env.PACKAGE_NAME }}" >>.debpkg/DEBIAN/control
+          echo "Version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}" >>.debpkg/DEBIAN/control
+          #echo "Source: ${{ env.PACKAGE_NAME }}" >>.debpkg/DEBIAN/control
+          echo "Section: utils" >>.debpkg/DEBIAN/control
+          echo "Priority: optional" >>.debpkg/DEBIAN/control
+          echo "Maintainer: ${{ env.MAINTAINER }}" >>.debpkg/DEBIAN/control
+          # echo "Build-Depends: libxrandr-dev," >>.debpkg/DEBIAN/control
           # echo "     libxi-dev,"
           # echo "     libx11-dev,"               
           # echo "     txt2man"
-          #echo "Standards-Version: 4.3.0" >>DEBIAN/control
-          #echo "Homepage: https://github.com/kreijack/xlibinput_calibrator" >>DEBIAN/control
-          echo "Architecture: ${{ env.ARCH }}" >>DEBIAN/control
-          echo 'Depends: ${misc:Depends},' >>DEBIAN/control
-          echo "         libc6," >>DEBIAN/control
-          echo "         xinput" >>DEBIAN/control
-          echo "Description: ${{ env.DESC }}" >>DEBIAN/control
-          echo " ${{ env.DESCLONG }}" >>DEBIAN/control
+          #echo "Standards-Version: 4.3.0" >>.debpkg/DEBIAN/control
+          #echo "Homepage: https://github.com/kreijack/xlibinput_calibrator" >>.debpkg/DEBIAN/control
+          echo "Architecture: ${{ env.ARCH }}" >>.debpkg/DEBIAN/control
+          echo 'Depends: ${misc:Depends},' >>.debpkg/DEBIAN/control
+          echo "         libc6," >>.debpkg/DEBIAN/control
+          echo "         xinput" >>.debpkg/DEBIAN/control
+          echo "Description: ${{ env.DESC }}" >>.debpkg/DEBIAN/control
+          echo " ${{ env.DESCLONG }}" >>.debpkg/DEBIAN/control
+          echo "****************"
+          echo "cat .debpkg/DEBIAN/control"
+          cat .debpkg/DEBIAN/control
+          echo "****************"
           dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
 
       # - name: build
