@@ -113,7 +113,7 @@ jobs:
       - name: Prep the code
         run: |
           mkdir -p .debpkg/opt/$APP_NAME
-          apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
+          sudo apt install -y devscripts dh-make libxrandr-dev libxi-dev txt2man
           echo rsync...
           rsync -rlptvD --exclude=CODEOWNERS --exclude=pull_request_template.md --exclude=bin_exclude/ --exclude=input-touch-simulator * .debpkg/opt/$APP_NAME/
 
