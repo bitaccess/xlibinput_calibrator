@@ -196,8 +196,6 @@ jobs:
 
       - name: build with dpkg-deb
         id: build
-        outputs:
-          file_name: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
         run: |
           mkdir -p .debpkg/DEBIAN
           echo "Package: ${{ env.PACKAGE_NAME }}" >>.debpkg/DEBIAN/control
@@ -227,6 +225,8 @@ jobs:
           ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo pwd
           pwd
+          echo "PACKAGE_FILE=${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb" >> "$GITHUB_ENV"
+          #file_name: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
 
       # - name: build with jiro4989
       #   id: build
@@ -246,7 +246,8 @@ jobs:
           echo pwd
           pwd
           echo
-          echo "deb file: ${{ steps.build.outputs.file_name }}"
+          echo "deb1 file: ${{ steps.build.outputs.file_name }}"
+          echo "deb2 file: $PACKAGE_FILE"
           echo filename: ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           ls -l ${{ env.PACKAGE_NAME }}_${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}_${{ env.ARCH }}.deb
           echo
@@ -259,8 +260,8 @@ jobs:
           host: ${{ secrets.DEB_REPO_HOST }}
           username: ${{ secrets.DEB_REPO_USERNAME }}
           key: ${{ secrets.DEB_REPO_KEY }}
-          source: ${{ steps.build.outputs.file_name }}
-          #source: ${{ steps.build_with_dpkg-deb.outputs.file_name }}
+          #source: ${{ steps.build.outputs.file_name }}
+          source: $PACKAGE_FILE
           target: /var/www/html/bitaccess/dists/upload/${{ steps.extract_branch.outputs.branch }}
 
       # scp the deb package to the package repo
