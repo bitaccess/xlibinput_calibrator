@@ -2,10 +2,10 @@
 # the DEBIAN/control file indicating a version change
 on:
   push:
-    #branches:
-    #  - master
-    paths:
-      - 'Release_notes.txt'
+    branches:
+      - master
+    #paths:
+    #  - 'Release_notes.txt'
 env:
   ARCH: 'all'
   MAINTAINER: 'bofh@bitaccess.co'
@@ -164,15 +164,40 @@ jobs:
       - name: build
         id: build
         uses: jiro4989/build-deb-action@v2
-        with:
-          # 'entryPoint', 'args', 'package', 'package_root', 'maintainer', 'version', 'installed_size', 'depends', 'arch', 'desc', 'compress_type'
-          package: ${{ env.PACKAGE_NAME }}
-          package_root: .debpkg
-          maintainer: ${{ env.MAINTAINER }}
-          version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}
-          arch: ${{ env.ARCH }}
-          desc: ${{ env.DESC }}
-          #desclong: ${{ env.DESCLONG }}
+        run: |
+          mkdir DEBIAN
+          echo "Package: ${{ env.PACKAGE_NAME }}" >>DEBIAN/control
+          echo "Version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}" >>DEBIAN/control
+          #echo "Source: ${{ env.PACKAGE_NAME }}" >>DEBIAN/control
+          echo "Section: utils" >>DEBIAN/control
+          echo "Priority: optional" >>DEBIAN/control
+          echo "Maintainer: ${{ env.MAINTAINER }}" >>DEBIAN/control
+          # echo "Build-Depends: libxrandr-dev," >>DEBIAN/control
+          # echo "     libxi-dev,"
+          # echo "     libx11-dev,"               
+          # echo "     txt2man"
+          #echo "Standards-Version: 4.3.0" >>DEBIAN/control
+          #echo "Homepage: https://github.com/kreijack/xlibinput_calibrator" >>DEBIAN/control
+          echo "Architecture: ${{ env.ARCH }}" >>DEBIAN/control
+          echo 'Depends: ${misc:Depends},' >>DEBIAN/control
+          echo "         libc6," >>DEBIAN/control
+          echo "         xinput" >>DEBIAN/control
+          echo "Description: ${{ env.DESC }}" >>DEBIAN/control
+          echo " ${{ env.DESCLONG }}" >>DEBIAN/control
+          dpkg-deb --build .debpkg ${{ env.PACKAGE_NAME }}-${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}.deb
+
+      # - name: build
+      #   id: build
+      #   uses: jiro4989/build-deb-action@v2
+      #   with:
+      #     # 'entryPoint', 'args', 'package', 'package_root', 'maintainer', 'version', 'installed_size', 'depends', 'arch', 'desc', 'compress_type'
+      #     package: ${{ env.PACKAGE_NAME }}
+      #     package_root: .debpkg
+      #     maintainer: ${{ env.MAINTAINER }}
+      #     version: ${{ env.APP_VERSION }}${{ matrix.codename }}${{ matrix.major }}
+      #     arch: ${{ env.ARCH }}
+      #     desc: ${{ env.DESC }}
+      #     #desclong: ${{ env.DESCLONG }}
 
       - name: verify
         run: |
