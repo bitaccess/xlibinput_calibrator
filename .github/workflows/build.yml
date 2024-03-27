@@ -56,15 +56,15 @@ jobs:
           echo "RUNNER_TEMP=$RUNNER_TEMP"
           echo "RUNNER_TOOL_CACHE=$RUNNER_TOOL_CACHE"
           echo
-          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> env|grep -E \"GITHUB|RUNNER|CI\""
-          env|grep -E "GITHUB|RUNNER|CI"|sort
-          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> env - above
+          echo "================================================================ env|grep -E \"GITHUB|RUNNER|CI\""
+          env|grep -E "GITHUB|RUNNER|CI"|sort || true
+          echo "================================================================ env - above"
           env|grep -vE "GITHUB|RUNNER|CI"
           echo
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
           echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
           echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-          echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> done
+          echo "================================================================ done
 
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -188,9 +188,9 @@ jobs:
           #echo "Standards-Version: 4.3.0" >>.debpkg/DEBIAN/control
           #echo "Homepage: https://github.com/kreijack/xlibinput_calibrator" >>.debpkg/DEBIAN/control
           echo "Architecture: ${{ env.ARCH }}" >>.debpkg/DEBIAN/control
-          echo 'Depends: ${misc:Depends},' >>.debpkg/DEBIAN/control
-          echo "         libc6," >>.debpkg/DEBIAN/control
-          echo "         xinput" >>.debpkg/DEBIAN/control
+          #echo 'Depends: ${misc:Depends},' >>.debpkg/DEBIAN/control
+          # echo 'Depends: libc6," >>.debpkg/DEBIAN/control
+          # echo "         xinput" >>.debpkg/DEBIAN/control
           echo "Description: ${{ env.DESC }}" >>.debpkg/DEBIAN/control
           echo " ${{ env.DESCLONG }}" >>.debpkg/DEBIAN/control
           echo "****************"
