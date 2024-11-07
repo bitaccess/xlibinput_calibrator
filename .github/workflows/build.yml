@@ -73,7 +73,7 @@ jobs:
           - os: ubuntu-22.04
             codename: jammy
             major: 22
-          - os: ubuntu-24.04
+          - os: ubuntu-22.04
             codename: noble
             major: 24
     steps:
