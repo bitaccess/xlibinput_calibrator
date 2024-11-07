@@ -3,4 +3,4 @@
         Changed around to better fit our procedures
         Added github workflow to build and upload .deb
 0.13.4:
-        Added .deb build for Jammy and Noble also
+        Added .deb build for Jammy and Noble also.
