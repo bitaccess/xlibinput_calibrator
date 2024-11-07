@@ -70,6 +70,12 @@ jobs:
           - os: ubuntu-20.04
             codename: focal
             major: 20
+          - os: ubuntu-22.04
+            codename: jammy
+            major: 22
+          - os: ubuntu-24.04
+            codename: noble
+            major: 24
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
